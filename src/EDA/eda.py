@@ -3,13 +3,19 @@ This module performs exploratory data analysis on the third trolls dataset.
 """
 
 from collections import Counter
+import string
 import os
+import re
+
 
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from wordcloud import WordCloud
+
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
+from nltk.corpus import stopwords
 from ..utils import load_data
 
 # Set style for visualizations
@@ -243,6 +249,15 @@ def analyze_content(df, name):
                 if tag
             ]
             top_hashtags = Counter(all_hashtags).most_common(20)
+            tags_string = ", ".join(all_hashtags).replace("#", "")
+            wordcloud = WordCloud(
+                width=800, height=800, background_color="white", min_font_size=10
+            ).generate(tags_string)
+            plt.imshow(wordcloud, interpolation="bilinear")
+            plt.axis("off")
+            plt.tight_layout(pad=0)
+            plt.savefig(f"plots/{name}_hashtags_wordcloud.png")
+            plt.close()
 
             if top_hashtags:
                 plt.figure(figsize=(12, 8))
@@ -262,11 +277,94 @@ def progress_bar(current, total, bar_length=70):
     print(f"Progress: [{arrow}{spaces}] {percent:.2f}%", end="\r")
 
 
+def clean_text(text):
+    """Clean the text by removing stop words and punctuation"""
+    # remove urls
+    text = re.sub(r"http\S+", "", text)
+    # remove mentions
+    text = re.sub(r"@\S+", "", text)
+    # remove hashtags
+    text = re.sub(r"#\S+", "", text)
+    # remove emojis
+    text = re.sub(r"[^\x00-\x7F]+", "", text)
+    # remove special characters
+    text = re.sub(r"[^a-zA-Z0-9\s]", "", text)
+    # remove extra whitespace
+    text = re.sub(r"\s+", " ", text)
+    # remove leading and trailing whitespace
+    text = text.strip()
+    # remove numbers
+    text = re.sub(r"\d+", "", text)
+    # remove stop words
+    stop_words = set(stopwords.words("english"))
+    text = " ".join(
+        word
+        for word in text.split()
+        if word.lower() not in stop_words and word not in string.punctuation
+    )
+    # lower case
+    return text.lower()
+
+
+def sentiment_analysis(df, name):
+    """Analyze the sentiment of the tweets"""
+    if "content" not in df.columns:
+        raise ValueError("DataFrame must have a 'content' column")
+    analyzer = SentimentIntensityAnalyzer()
+    df["cleaned_text"] = df["content"].apply(clean_text)
+    df["sentiment"] = df["cleaned_text"].apply(
+        lambda x: analyzer.polarity_scores(x)["compound"]
+    )
+    if not df.empty:
+        # Histogram
+        plt.figure(figsize=(10, 6))
+        sns.histplot(df["sentiment"], bins=20, kde=True)
+        plt.title("Sentiment Distribution")
+        plt.xlabel("Sentiment Score")
+        plt.ylabel("Frequency")
+        plt.savefig(f"plots/{name}_sentiment_histogram.png")
+        plt.close()
+        # Bar plot by account category
+        if "account_category" in df.columns:
+            plt.figure(figsize=(12, 6))
+            sns.barplot(x="account_category", y="sentiment", data=df)
+            plt.title("Sentiment by Account Category")
+            plt.xlabel("Account Category")
+            plt.ylabel("Sentiment Score")
+            plt.savefig(f"plots/{name}_sentiment_by_category.png")
+            plt.close()
+        else:
+            print("account_category column not found, skipping bar plot.")
+        # Bar plot by region
+        if "region" in df.columns:
+            plt.figure(figsize=(12, 6))
+            sns.barplot(x="region", y="sentiment", data=df)
+            plt.title("Sentiment by Region")
+            plt.xlabel("Region")
+            plt.ylabel("Sentiment Score")
+            plt.savefig(f"plots/{name}_sentiment_by_region.png")
+            plt.close()
+        else:
+            print("region column not found, skipping bar plot.")
+        # Outlier analysis
+        if "sentiment" in df.columns:
+            plt.figure(figsize=(10, 6))
+            sns.boxplot(x="sentiment", data=df)
+            plt.title("Outlier Analysis")
+            plt.savefig(f"plots/{name}_outlier_analysis.png")
+            plt.close()
+        else:
+            print("sentiment column not found, skipping outlier analysis.")
+    else:
+        print("DataFrame is empty, no plots generated.")
+
+    # outlier
+
+
 def run_eda():
     """Run the full EDA process"""
     print("Starting Exploratory Data Analysis...")
 
-    # Load the data
     raw_df, derived_df, combined_df = load_data()
 
     # Basic statistics
@@ -291,6 +389,8 @@ def run_eda():
     # Analyze content
     analyze_content(combined_df, "combined")
     progress_bar(6, 6)
+    # Analyze sentiment
+    sentiment_analysis(combined_df, "combined")
     print("EDA completed. Visualizations saved to 'plots' directory.")
 
 
