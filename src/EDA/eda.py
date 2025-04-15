@@ -10,6 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from wordcloud import WordCloud
+from ..utils import load_data
 
 # Set style for visualizations
 plt.style.use("fivethirtyeight")
@@ -18,20 +19,6 @@ sns.set_palette("husl")
 
 # Create output directory for plots
 os.makedirs("plots", exist_ok=True)
-
-
-def load_data():
-    """Load both the trimmed and derived datasets"""
-    trimmed_df = pd.read_csv("data/raw/1_trimmed.csv")
-    derived_df = pd.read_csv("data/raw/1_derived.csv")
-
-    # Combine the datasets
-    combined_df = pd.concat([trimmed_df, derived_df], axis=1)
-
-    # Handle duplicated columns (if any)
-    combined_df = combined_df.loc[:, ~combined_df.columns.duplicated()]
-
-    return trimmed_df, derived_df, combined_df
 
 
 def basic_stats(df, name):
@@ -280,10 +267,10 @@ def run_eda():
     print("Starting Exploratory Data Analysis...")
 
     # Load the data
-    trimmed_df, derived_df, combined_df = load_data()
+    raw_df, derived_df, combined_df = load_data()
 
     # Basic statistics
-    basic_stats(trimmed_df, "trimmed")
+    basic_stats(raw_df, "raw")
     basic_stats(derived_df, "derived")
     progress_bar(0, 6)
     # Analyze categorical features

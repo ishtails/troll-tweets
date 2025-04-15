@@ -2,7 +2,7 @@
 
 import argparse
 from .preprocessing import process_tweets
-from .EDA import run_eda
+from .eda import run_eda
 
 def main():
     """Main entry point for the application."""
