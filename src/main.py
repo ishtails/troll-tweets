@@ -1,7 +1,7 @@
 """Main entry point for the application."""
 
 import argparse
-from .eda import run_eda
+from .eda import eda
 
 def main():
     """Main entry point for the application."""
@@ -11,7 +11,7 @@ def main():
 
     # EDA subcommand
     eda_parser = subparsers.add_parser("eda", help="Run exploratory data analysis")
-    eda_parser.set_defaults(func=run_eda)
+    eda_parser.set_defaults(func=eda)
 
     args = parser.parse_args()
     if args.command:
