@@ -7,7 +7,6 @@ import string
 import os
 import re
 
-
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -48,7 +47,7 @@ def analyze_categorical_features(df, name):
     categorical_features = ["region", "language", "account_type", "account_category"]
 
     for feature in categorical_features:
-        if feature in df.columns:
+        if feature in df.columns and not df[feature].dropna().empty:
             plt.figure(figsize=(12, 6))
             counts = df[feature].value_counts().head(15)
             counts.plot(kind="bar")
@@ -57,6 +56,8 @@ def analyze_categorical_features(df, name):
             plt.tight_layout()
             plt.savefig(f"plots/{name}_{feature}_distribution.png")
             plt.close()
+        else:
+            print(f"Skipping {feature} as data is empty.")
 
 
 def analyze_numerical_features(df, name):
@@ -94,54 +95,50 @@ def analyze_numerical_features(df, name):
 
 def analyze_temporal_patterns(df, name):
     """Analyze temporal patterns in the data"""
-    if "publish_date" in df.columns:
-        # Convert to datetime if not already
-        if not pd.api.types.is_datetime64_any_dtype(df["publish_date"]):
-            df["date"] = pd.to_datetime(df["publish_date"], errors="coerce")
-        else:
-            df["date"] = df["publish_date"]
+    if "publish_date" in df.columns and not df["publish_date"].dropna().empty:
+        df["date"] = pd.to_datetime(df["publish_date"], errors="coerce")
 
-        # Hour of day analysis
-        plt.figure(figsize=(12, 6))
-        if "hour_of_day" in df.columns:
+        if "hour_of_day" in df.columns and not df["hour_of_day"].dropna().empty:
             hourly_posts = df["hour_of_day"].value_counts().sort_index()
-        else:
-            hourly_posts = df["date"].dt.hour.value_counts().sort_index()
+            plt.figure(figsize=(12, 6))
+            hourly_posts.plot(kind="bar")
+            plt.title("Tweet Distribution by Hour of Day")
+            plt.xlabel("Hour of Day")
+            plt.ylabel("Number of Tweets")
+            plt.xticks(rotation=0)
+            plt.tight_layout()
+            plt.savefig(f"plots/{name}_hourly_distribution.png")
+            plt.close()
 
-        hourly_posts.plot(kind="bar")
-        plt.title("Tweet Distribution by Hour of Day")
-        plt.xlabel("Hour of Day")
-        plt.ylabel("Number of Tweets")
-        plt.xticks(rotation=0)
-        plt.tight_layout()
-        plt.savefig(f"plots/{name}_hourly_distribution.png")
-        plt.close()
-
-        # Day of week analysis
-        plt.figure(figsize=(12, 6))
-        if "day_of_week" in df.columns:
-            dow_posts = df["day_of_week"].value_counts().sort_index()
-        else:
-            dow_posts = df["date"].dt.dayofweek.value_counts().sort_index()
-
-        days = [
-            "Monday",
-            "Tuesday",
-            "Wednesday",
-            "Thursday",
-            "Friday",
-            "Saturday",
-            "Sunday",
-        ]
-        dow_posts.index = [days[i] for i in dow_posts.index]
-        dow_posts.plot(kind="bar")
-        plt.title("Tweet Distribution by Day of Week")
-        plt.xlabel("Day of Week")
-        plt.ylabel("Number of Tweets")
-        plt.xticks(rotation=45)
-        plt.tight_layout()
-        plt.savefig(f"plots/{name}_dayofweek_distribution.png")
-        plt.close()
+        if "day_of_week" in df.columns and not df["day_of_week"].dropna().empty:
+            dow_posts = df["day_of_week"].dropna().value_counts().sort_index()
+            dow_posts.index = dow_posts.index.astype(int)  # Convert to integers
+            days = [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday",
+            ]
+            valid_indices = [
+                i for i in dow_posts.index if i in range(7)
+            ]  # Filter valid indices
+            if valid_indices:
+                dow_posts = dow_posts.loc[valid_indices]
+                dow_posts.index = [days[i] for i in dow_posts.index]
+                plt.figure(figsize=(12, 6))
+                dow_posts.plot(kind="bar")
+                plt.title("Tweet Distribution by Day of Week")
+                plt.xlabel("Day of Week")
+                plt.ylabel("Number of Tweets")
+                plt.xticks(rotation=45)
+                plt.tight_layout()
+                plt.savefig(f"plots/{name}_dayofweek_distribution.png")
+                plt.close()
+            else:
+                print("Skipping day of week plot: No valid data.")
 
 
 def analyze_account_behavior(df, name):
@@ -227,28 +224,26 @@ def analyze_nlp_features(df, name):
 
 def analyze_content(df, name):
     """Analyze the textual content of tweets"""
-    if "content" in df.columns:
-        # Generate word cloud from content
-        plt.figure(figsize=(12, 12))
+    if "content" in df.columns and not df["content"].dropna().empty:
         text = " ".join(df["content"].dropna().astype(str))
-        wordcloud = WordCloud(
-            width=800, height=800, background_color="white", min_font_size=10
-        ).generate(text)
-        plt.imshow(wordcloud, interpolation="bilinear")
-        plt.axis("off")
-        plt.tight_layout(pad=0)
-        plt.savefig(f"plots/{name}_content_wordcloud.png")
-        plt.close()
+        if len(text.strip().split()) > 0:  # Ensure at least one word
+            plt.figure(figsize=(12, 12))
+            wordcloud = WordCloud(
+                width=800, height=800, background_color="white", min_font_size=10
+            ).generate(text)
+            plt.imshow(wordcloud, interpolation="bilinear")
+            plt.axis("off")
+            plt.tight_layout(pad=0)
+            plt.savefig(f"plots/{name}_content_wordcloud.png")
+            plt.close()
+        else:
+            print("Skipping word cloud for content: No words to process.")
 
-        # Analyze most common hashtags
-        if "hashtags" in df.columns:
-            all_hashtags = [
-                tag
-                for tags in df["hashtags"].dropna()
-                for tag in tags.split(", ")
-                if tag
-            ]
-            top_hashtags = Counter(all_hashtags).most_common(20)
+    if "hashtags" in df.columns and not df["hashtags"].dropna().empty:
+        all_hashtags = [
+            tag for tags in df["hashtags"].dropna() for tag in tags.split(", ") if tag
+        ]
+        if all_hashtags:  # Ensure there's data
             tags_string = ", ".join(all_hashtags).replace("#", "")
             wordcloud = WordCloud(
                 width=800, height=800, background_color="white", min_font_size=10
@@ -258,7 +253,7 @@ def analyze_content(df, name):
             plt.tight_layout(pad=0)
             plt.savefig(f"plots/{name}_hashtags_wordcloud.png")
             plt.close()
-
+            top_hashtags = Counter(all_hashtags).most_common(20)
             if top_hashtags:
                 plt.figure(figsize=(12, 8))
                 hashtag_df = pd.DataFrame(top_hashtags, columns=["Hashtag", "Count"])
@@ -267,42 +262,34 @@ def analyze_content(df, name):
                 plt.tight_layout()
                 plt.savefig(f"plots/{name}_top_hashtags.png")
                 plt.close()
+        else:
+            print("Skipping hashtags word cloud: No hashtags to process.")
 
 
 def progress_bar(current, total, bar_length=70):
     """Print a progress bar"""
     percent = float(current) * 100 / total
-    arrow = "=" * int(percent / 100)
+    arrow = "=" * int(percent / 100 * bar_length)
     spaces = " " * (bar_length - len(arrow))
     print(f"Progress: [{arrow}{spaces}] {percent:.2f}%", end="\r")
 
 
 def clean_text(text):
-    """Clean the text by removing stop words and punctuation"""
-    # remove urls
+    if text is None:
+        text = ""  # Handle None values
     text = re.sub(r"http\S+", "", text)
-    # remove mentions
     text = re.sub(r"@\S+", "", text)
-    # remove hashtags
     text = re.sub(r"#\S+", "", text)
-    # remove emojis
     text = re.sub(r"[^\x00-\x7F]+", "", text)
-    # remove special characters
     text = re.sub(r"[^a-zA-Z0-9\s]", "", text)
-    # remove extra whitespace
-    text = re.sub(r"\s+", " ", text)
-    # remove leading and trailing whitespace
-    text = text.strip()
-    # remove numbers
+    text = re.sub(r"\s+", " ", text).strip()
     text = re.sub(r"\d+", "", text)
-    # remove stop words
     stop_words = set(stopwords.words("english"))
     text = " ".join(
         word
         for word in text.split()
         if word.lower() not in stop_words and word not in string.punctuation
     )
-    # lower case
     return text.lower()
 
 
@@ -357,8 +344,6 @@ def sentiment_analysis(df, name):
             print("sentiment column not found, skipping outlier analysis.")
     else:
         print("DataFrame is empty, no plots generated.")
-
-    # outlier
 
 
 def run_eda():
