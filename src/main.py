@@ -1,10 +1,7 @@
 """Main entry point for the application."""
 
 import argparse
-from .preprocessing import process_tweets
 from .eda import run_eda
-import nltk
-
 
 def main():
     """Main entry point for the application."""
@@ -12,16 +9,7 @@ def main():
     parser = argparse.ArgumentParser(description="Main CLI for troll tweets project.")
     subparsers = parser.add_subparsers(dest="command", help="Subcommands")
 
-    # Preprocess subcommand
-    preprocess_parser = subparsers.add_parser(
-        "preprocess", help="Run tweet preprocessing"
-    )
-    preprocess_parser.set_defaults(func=process_tweets)
-
     # EDA subcommand
-    nltk.download("vader_lexicon")
-    nltk.download("punkt")
-    nltk.download("stopwords")
     eda_parser = subparsers.add_parser("eda", help="Run exploratory data analysis")
     eda_parser.set_defaults(func=run_eda)
 

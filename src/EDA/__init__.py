@@ -2,6 +2,6 @@
 This module contains the code for the EDA notebook.
 """
 
-from .eda import run_eda
+from .main import eda
 
-__all__ = ["run_eda"]
+__all__ = ["eda"]
