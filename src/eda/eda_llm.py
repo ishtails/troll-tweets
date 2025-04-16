@@ -11,8 +11,6 @@ addition to generating visualizations.
 import json
 import pandas as pd
 from typing import Dict, Any
-from collections import Counter
-import numpy as np
 
 # Import EDA functions from other modules
 from .eda_network import analyze_networks
