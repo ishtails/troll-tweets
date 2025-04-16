@@ -218,21 +218,3 @@ The LLM-interpretable output follows this general structure:
   "network_analysis": {...}
 }
 ```
-
-## Future Enhancements
-
-Potential future improvements:
-- Integration with interactive visualization tools
-- Dynamic querying of the LLM context
-- Automatic interpretation generation
-- Real-time analysis capabilities
-- Comparison between multiple datasets
-
-## Dependencies
-
-- pandas: Data manipulation and analysis
-- numpy: Numerical computing
-- matplotlib & seaborn: Data visualization
-- nltk: Natural language processing
-- json: JSON file handling
-- collections: Specialized container datatypes 
