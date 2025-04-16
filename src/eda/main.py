@@ -35,8 +35,7 @@ def eda():
     nltk.download("vader_lexicon")
     nltk.download("punkt")
 
-    raw_df, derived_df, combined_df2 = load_data()
-    combined_df = combined_df2.head(100)
+    raw_df, derived_df, combined_df = load_data()
 
     # Basic statistics
     basic_stats(raw_df, "raw")

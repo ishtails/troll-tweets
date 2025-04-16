@@ -301,25 +301,21 @@ def generate_llm_insights(df: pd.DataFrame) -> Dict[str, Any]:
     # Find categorical distributions of interest
     for feature, analysis in summary["categorical_analysis"].items():
         if analysis["unique_values"] > 1:
-            top_category = max(
-                analysis["distribution"].items(),
-                key=lambda x: (
-                    x[1]["percentage"]
-                    if isinstance(x[1], dict) and "percentage" in x[1]
-                    else 0
-                ),
-            )[0]
-            insights["distributions"][feature] = {
-                "top_category": top_category,
-                "imbalance_ratio": max(
-                    [
-                        item["percentage"]
-                        for item in analysis["distribution"].values()
-                        if isinstance(item, dict) and "percentage" in item
-                    ],
-                    default=0,
-                ),
-            }
+            # Get top category from top_categories
+            if "top_categories" in analysis and analysis["top_categories"]:
+                # Find category with highest count
+                top_category = max(
+                    analysis["top_categories"].items(),
+                    key=lambda x: x[1]["count"] if isinstance(x[1], dict) and "count" in x[1] else 0
+                )[0]
+                
+                # Calculate imbalance ratio from top category percentage
+                top_percentage = analysis["top_categories"][top_category]["percentage"]
+                
+                insights["distributions"][feature] = {
+                    "top_category": top_category,
+                    "imbalance_ratio": top_percentage,
+                }
 
     # Find strong correlations
     for feature, analysis in summary["numerical_analysis"].items():
@@ -364,17 +360,17 @@ def generate_llm_insights(df: pd.DataFrame) -> Dict[str, Any]:
         )
 
     # Identify outliers in numerical features
-    for feature, analysis in summary["dataset_overview"]["numerical_summary"].items():
-        if analysis.get("has_outliers", False):
+    for feature, analysis in summary["numerical_analysis"].items():
+        if "outliers" in analysis and analysis["outliers"]["count"] > 0:
             insights["anomalies"].append(
                 {
                     "feature": feature,
-                    "description": "Contains outliers that may affect analysis",
+                    "description": f"Contains {analysis['outliers']['count']} outliers ({analysis['outliers']['percentage']:.1f}% of data)"
                 }
             )
 
     # Add network insights if available
-    if summary["network_analysis"]["has_network_data"]:
+    if summary["network_analysis"]["summary"]["has_networks"]:
         network_summary = summary["network_analysis"]["summary"]
 
         # Add hashtag network insights
@@ -395,7 +391,7 @@ def generate_llm_insights(df: pd.DataFrame) -> Dict[str, Any]:
                 insights["networks"]["top_hashtags"] = [
                     {"tag": node["id"], "weight": node["weight"]}
                     for node in summary["network_analysis"]["hashtag_network"][
-                        "top_nodes"
+                        "nodes"
                     ][:5]
                 ]
 
@@ -417,7 +413,7 @@ def generate_llm_insights(df: pd.DataFrame) -> Dict[str, Any]:
                 insights["networks"]["top_mentions"] = [
                     {"mention": node["id"], "weight": node["weight"]}
                     for node in summary["network_analysis"]["mention_network"][
-                        "top_nodes"
+                        "nodes"
                     ][:5]
                 ]
 
