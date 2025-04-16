@@ -2,18 +2,6 @@
 
 This document provides a comprehensive overview of the exploratory data analysis (EDA) performed on the troll tweets dataset, including the visualization techniques used, their purpose, and alternatives.
 
-## Table of Contents
-- [Overview](#overview)
-- [Basic Statistics](#basic-statistics)
-- [Categorical Feature Analysis](#categorical-feature-analysis)
-- [Numerical Feature Analysis](#numerical-feature-analysis)
-- [Temporal Pattern Analysis](#temporal-pattern-analysis)
-- [Account Behavior Analysis](#account-behavior-analysis)
-- [NLP Analysis](#nlp-analysis)
-- [Sentiment Analysis](#sentiment-analysis)
-- [Network Analysis](#network-analysis)
-- [LLM-Compatible EDA](#llm-compatible-eda)
-
 ## Overview
 
 The EDA pipeline analyzes the troll tweets dataset from multiple perspectives, using various visualization techniques to uncover patterns and insights. The analysis is structured into different modules to facilitate understanding:
@@ -41,12 +29,6 @@ eda_helpers.py        # Helper functions for EDA tasks
 - Establishes a baseline for further analysis
 - Documents basic dataset characteristics
 
-### Alternatives
-- **Pandas Profiling**: Automated report generation with ProfileReport
-- **Great Expectations**: Data validation framework with expectation suites
-- **DataPrep.EDA**: Automated EDA with one-line commands
-- **D-Tale**: Interactive visualization of pandas dataframes
-
 ## Categorical Feature Analysis
 
 ### What is Used
@@ -59,12 +41,6 @@ eda_helpers.py        # Helper functions for EDA tasks
 - Identifies dominant categories
 - Reveals imbalances in category distribution
 - Provides insights into troll account characteristics
-
-### Alternatives
-- **Pie charts**: For proportional representation (used selectively)
-- **Treemaps**: For hierarchical categorical data
-- **Stacked bar charts**: For comparing multiple categorical variables
-- **Categorical heatmaps**: For showing relationships between categorical variables
 
 ## Numerical Feature Analysis
 
@@ -80,12 +56,6 @@ eda_helpers.py        # Helper functions for EDA tasks
 - Detects and quantifies outliers
 - Provides detailed statistics for numerical features
 
-### Alternatives
-- **Violin plots**: Combines boxplot and KDE
-- **Strip plots**: For showing individual data points
-- **Q-Q plots**: For comparing distributions to theoretical distributions
-- **ECDF plots**: For cumulative distribution analysis
-
 ## Temporal Pattern Analysis
 
 ### What is Used
@@ -99,12 +69,6 @@ eda_helpers.py        # Helper functions for EDA tasks
 - Reveals peak posting times
 - Detects coordinated campaigns
 - Analyzes evolution of activity over time
-
-### Alternatives
-- **Calendar heatmaps**: For daily patterns across months
-- **Decomposition plots**: For seasonal decomposition (trend, seasonality, residual)
-- **Autocorrelation plots**: For detecting periodic patterns
-- **Rolling statistics**: For evolving metrics over time
 
 ## Account Behavior Analysis
 
@@ -120,12 +84,6 @@ eda_helpers.py        # Helper functions for EDA tasks
 - Reveals relationships between behavior metrics
 - Segments accounts by behavior patterns
 
-### Alternatives
-- **Hex bin plots**: For dense scatter plots
-- **Contour plots**: For density estimation in 2D
-- **Parallel coordinates**: For multivariate behavior analysis
-- **Radar charts**: For comparing multiple behavior metrics across segments
-
 ## NLP Analysis
 
 ### What is Used
@@ -139,12 +97,6 @@ eda_helpers.py        # Helper functions for EDA tasks
 - Identifies relationships between text features
 - Reveals hashtag campaigns and common mentioned entities
 - Detects patterns in text formatting and structure
-
-### Alternatives
-- **N-gram analysis**: For multi-word phrase analysis
-- **TF-IDF visualization**: For important term identification
-- **Topic modeling visualizations**: For LDA/NMF topic analysis
-- **Named entity recognition plots**: For entity identification
 
 ## Sentiment Analysis
 
@@ -160,12 +112,6 @@ eda_helpers.py        # Helper functions for EDA tasks
 - Reveals sentiment manipulation strategies
 - Provides additional context for content analysis
 
-### Alternatives
-- **TextBlob**: For simple sentiment analysis
-- **BERT/RoBERTa fine-tuned models**: For more nuanced sentiment analysis
-- **Emotion detection**: For specific emotion classification beyond positive/negative
-- **Aspect-based sentiment analysis**: For sentiment toward specific entities
-
 ## Network Analysis
 
 ### What is Used
@@ -179,12 +125,6 @@ eda_helpers.py        # Helper functions for EDA tasks
 - Reveals coordination between accounts
 - Maps influence and information flow
 - Detects communities and clusters
-
-### Alternatives
-- **NetworkX with Matplotlib**: For custom network visualization
-- **Gephi**: For interactive network analysis
-- **Plotly Network Graphs**: For interactive web-based networks
-- **Community detection algorithms**: For identifying sub-networks
 
 ## LLM-Compatible EDA
 
@@ -200,12 +140,6 @@ eda_helpers.py        # Helper functions for EDA tasks
 - Automates insight generation
 - Creates standardized EDA documentation
 
-### Alternatives
-- **Pandas DataFrame to markdown**: For human-readable summaries
-- **Automated report generation**: With tools like Quarto or R Markdown
-- **Interactive dashboards**: Using Streamlit or Dash
-- **Database storage**: For queryable EDA results
-
 ## Technical Implementation
 
 All visualizations are generated using a combination of:
@@ -214,5 +148,3 @@ All visualizations are generated using a combination of:
 - **Pandas**: Data manipulation
 - **NLTK**: Natural language processing
 - **WordCloud**: Word cloud generation
-
-The outputs are saved to a "plots" directory, and structured data is exported to JSON files for further analysis.
