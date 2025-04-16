@@ -6,13 +6,13 @@ import pandas as pd
 def load_data():
     """Load both the trimmed and derived datasets"""
     # fetch 1 to 5 from data/raw
-    trimmed_df1 = pd.read_csv("data/raw/2_trimmed.csv")
+    trimmed_df1 = pd.read_csv("data/raw/1_trimmed.csv")
     # trimmed_df2 = pd.read_csv("data/raw/2_trimmed.csv")
     # trimmed_df3 = pd.read_csv("data/raw/3_trimmed.csv")
     # trimmed_df4 = pd.read_csv("data/raw/4_trimmed.csv")
     # trimmed_df5 = pd.read_csv("data/raw/5_trimmed.csv")
 
-    derived_df1 = pd.read_csv("data/raw/2_derived.csv")
+    derived_df1 = pd.read_csv("data/raw/1_derived.csv")
     # derived_df2 = pd.read_csv("data/raw/2_derived.csv")
     # derived_df3 = pd.read_csv("data/raw/3_derived.csv")
     # derived_df4 = pd.read_csv("data/raw/4_derived.csv")
